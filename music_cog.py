@@ -58,28 +58,27 @@ async def play_music(self, ctx):
         self.music_queue.pop(0) 
         
         self.vc.play(discord.FFmpegPCMAudio(m_url, **self.FFMPEG_OPTOIONS), after=lambda e: self.play_next())
+@commands.command(name="play", aliase=["p, playing"] ,help='play the selected song from Youtube'    
+async def play(self, ctx, *agrs):
+    query =" ".join(*args_to_str)  
 
-        @commands.command(name="play", aliase=["p, playing"] ,help='play the selected song from Youtube')
-        async def play(self, ctx, *agrs):
-            query =" ".join(*args_to_str)  
-
-        voice_channel = ctx.author.voice.channel
-        if voice_channel is None:
-            await ctx.send("connect to a voice channel")
-        elif self.is_paused:
-            self.vc.resume()
+    voice_channel = ctx.author.voice.channel
+    if voice_channel is None:
+        await ctx.send("connect to a voice channel")
+    elif self.is_paused:
+        self.vc.resume()
+    else:
+        song = self.search_yt(QueryValue)
+        if type(song) == type(True):
+            await ctx.send("```Could not download the song. Incorrect format try another keyword. This could be due to playlist or a livestream format.```")
         else:
-            song = self.search_yt(QueryValue)
-            if type(song) == type(True):
-                await ctx.send("```Could not download the song. Incorrect format try another keyword. This could be due to playlist or a livestream format.```")
+            if self.is_playing:
+                await ctx.send(f"**#{len(self.music_queue)+2} -'{song['title']}'** added to the queue")  
             else:
-                if self.is_playing:
-                    await ctx.send(f"**#{len(self.music_queue)+2} -'{song['title']}'** added to the queue")  
-                else:
-                    await ctx.send(f"**'{song['title']}'** added to the queue")  
-                self.music_queue.append([song, voice_channel])
-                if self.is_playing == False:
-                    await self.play_music(ctx)
+                await ctx.send(f"**'{song['title']}'** added to the queue")  
+            self.music_queue.append([song, voice_channel])
+            if self.is_playing == False:
+                await self.play_music(ctx)
 
 @commands.command(name = "resume", aliases=["r"], help="Resumes playing with the discord bot")
 async def resume(self, ctx, *args):
